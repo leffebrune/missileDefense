@@ -18,9 +18,7 @@ public class Touch : MonoBehaviour
     public delegate void OnMove(int id, Vector2 pos);
 
     const int maxTouches = 4;
-    Vector2[] touchCurrent = new Vector2[maxTouches];
-    Vector2[] touchStart = new Vector2[maxTouches];
-    bool[] touchDoing = new bool[maxTouches];
+    Finger[] fingers = new Finger[maxTouches];
 
     OnStart _onStart = null;
     OnEnd _onEnd = null;
@@ -45,11 +43,13 @@ public class Touch : MonoBehaviour
         }
     }
 
-    void Start ()
+    void Start()
     {
         Instance = this;
         for (var i = 0; i < maxTouches; i++)
-            touchDoing[i] = false;
+        { 
+            fingers[i].on = false;
+        }
         MakeDebugRenderer();
     }
 
@@ -65,17 +65,17 @@ public class Touch : MonoBehaviour
 #if (UNITY_EDITOR || UNITY_STANDALONE)
         if (Input.GetMouseButton(0))
         {
-            touchDoing[0] = true;
-            touchCurrent[0] = Input.mousePosition;
+            fingers[0].on = true;
+            fingers[0].current = Input.mousePosition;
             if (_onMove != null)
-                _onMove(0, touchCurrent[0]);
+                _onMove(0, fingers[0].current);
         }
         else
-            touchDoing[0] = false;
+            fingers[0].on = false;
 
         if (Input.GetMouseButtonDown(0))
         {
-            touchStart[0] = Input.mousePosition;
+            fingers[0].start = Input.mousePosition;
             if (_onStart != null)
                 _onStart(0);
         }
@@ -87,41 +87,53 @@ public class Touch : MonoBehaviour
 #else
         var tc = Input.touchCount;
 
-        Debug.Log(tc);
-
-        for (var i = 0; i < maxTouches; i++)
+        for (var i = 0; i < tc; i++)
         {
-            if (tc <= i)
-            {        
-                touchDoing[i] = false;
-                continue;            
+            var t = Input.GetTouch(i);
+            var idx = -1;
+            var emptySlot = -1;
+            for (var j = 0; j < maxTouches; j++)
+            {
+                if (fingers[j].on && fingers[j].id == t.fingerId)
+                {
+                    idx = j;
+                    break;
+                }
+                if (!fingers[j].on)
+                    emptySlot = j;
             }
 
-            var t = Input.GetTouch(i);
-            
+            if (idx == -1)
+            {
+                idx = emptySlot;
+                if (idx == -1)
+                    continue;
+            }
+
             if (t.phase == TouchPhase.Began)
             {
-                touchDoing[i] = true;
-                touchCurrent[i] = t.position;
-                touchStart[i] = t.position;
-        
-                Debug.Log("TOUCH_BEGAN = " + i + " / " + t.fingerId + " / " + t.position);
+                fingers[idx].on = true;
+                fingers[idx].id = t.fingerId;
+                fingers[idx].start = t.position;
+                fingers[idx].current = t.position;
+
+                Debug.Log("TOUCH_BEGAN = " + idx + " / " + t.fingerId + " / " + t.position);
                 if (_onStart != null)
-                    _onStart(i);
+                    _onStart(fingers[idx].id);
             }
             else if (t.phase == TouchPhase.Moved)
             {
-                Debug.Log("TOUCH_MOVE = " + i + " / " + t.fingerId + " / " + t.position);
-                touchCurrent[i] = t.position;
+                Debug.Log("TOUCH_MOVE = " + idx + " / " + t.fingerId + " / " + t.position);
+                fingers[idx].current = t.position;
                 if (_onMove != null)
-                    _onMove(i, touchCurrent[i]);
+                    _onMove(fingers[idx].id, fingers[idx].current);
             }
             else if ((t.phase == TouchPhase.Ended) || (t.phase == TouchPhase.Canceled))
             {
-                Debug.Log("TOUCH_END = " + i + " / " + t.fingerId + " / " + t.position);
-                touchDoing[i] = false;
+                Debug.Log("TOUCH_END = " + idx + " / " + t.fingerId + " / " + t.position);
+                fingers[idx].on = false;
                 if (_onEnd != null)
-                    _onEnd(i);
+                    _onEnd(fingers[idx].id);
             }
         }
 #endif
@@ -135,7 +147,7 @@ public class Touch : MonoBehaviour
 
         for (var i = 0; i < maxTouches; i++)
         {
-            if (!touchDoing[i])
+            if (!fingers[i].on)
             {
                 debugRenderer[i].gameObject.SetActive(false);
                 continue;
@@ -143,8 +155,8 @@ public class Touch : MonoBehaviour
             
             debugRenderer[i].gameObject.SetActive(true);
 
-            var pos0 = Camera.main.ScreenToWorldPoint(touchStart[i]);
-            var pos1 = Camera.main.ScreenToWorldPoint(touchCurrent[i]);
+            var pos0 = Camera.main.ScreenToWorldPoint(fingers[i].start);
+            var pos1 = Camera.main.ScreenToWorldPoint(fingers[i].current);
             pos0.z = 0;
             pos1.z = 0;
             debugRenderer[i].SetPosition(0, pos0);
