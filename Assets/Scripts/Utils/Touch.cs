@@ -163,4 +163,19 @@ public class Touch : MonoBehaviour
             debugRenderer[i].SetPosition(1, pos1);
         }
     }
+
+    void Get(int id, ref Finger f)
+    {
+        for (var i = 0; i < maxTouches; i++)
+        {
+            if (!fingers[i].on)
+                continue;
+
+            if (fingers[i].id == id)
+            {
+                f = fingers[i];
+                break;
+            }
+        }
+    }
 }
