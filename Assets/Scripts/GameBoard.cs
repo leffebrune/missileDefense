@@ -11,11 +11,12 @@ public class GameBoard : MonoBehaviour
 
     IEnumerator Spawn()
     {
-        var prefab = Resources.Load<GameObject>("projectile");
         while (true)
         {
-            var go = Instantiate(prefab);
-            yield return new WaitForSeconds(1.0f);
+            var startPos = new Vector3(Random.Range(-7.0f, 7.0f), 5, 0);
+            var endPos = new Vector3(Random.Range(-7.0f, 7.0f), -4.0f, 0);
+            ProjectileManager.Instance.MakeEnemy(startPos, endPos, 3.0f);
+            yield return new WaitForSeconds(3.0f);
         }
     }
 }

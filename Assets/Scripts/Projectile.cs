@@ -4,28 +4,46 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    bool isEnemy = true;
-
-    Vector3 speed;
-
+    public bool isEnemy = true;
+    bool exploded = false;
+    protected Vector3 targetPos;
+    protected Vector3 speed;
+    protected float lifeTime;
+    protected float createdTime;
+    
     void Start()
     {
-        var startPos = new Vector3(Random.Range(-7.0f, 7.0f), 5, 0);
-        transform.position = startPos;
 
-        var endPos = new Vector3(Random.Range(-7.0f, 7.0f), -4.0f, 0);
+    }
 
-        var dir = (endPos - startPos).normalized;
-        speed = dir * 3.0f;
+    public void Set(Vector3 _startPos, Vector3 _targetPos, float _speed)
+    {
+        transform.position = _startPos;
+        targetPos = _targetPos;
+
+        var d = _targetPos - _startPos;
+        speed = _speed * d.normalized;
+        lifeTime = d.magnitude / _speed;
+        createdTime = Time.time;
     }
 
     void Update()
     {
+        if (exploded)
+            return;
         var p = transform.position;
         p += speed * Time.deltaTime;
         transform.position = p;
 
-        if (p.y < -4.0f)
-            Destroy(gameObject);
+        if (Time.time - createdTime > lifeTime)
+        {
+            exploded = true;
+            OnExplode();
+        }
+    }
+
+    protected virtual void OnExplode()
+    {
+        ProjectileManager.Instance.Remove(gameObject);
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Touch : MonoBehaviour
 {
-    struct Finger
+    public struct Finger
     {
         public int id;
         public Vector2 start;
@@ -24,7 +24,7 @@ public class Touch : MonoBehaviour
     OnEnd _onEnd = null;
     OnMove _onMove = null;
 
-    bool DebugEnable = true;
+    bool DebugEnable = false;
     LineRenderer[] debugRenderer;
 
     void MakeDebugRenderer()
@@ -43,9 +43,13 @@ public class Touch : MonoBehaviour
         }
     }
 
-    void Start()
+    void Awake()
     {
         Instance = this;
+    }
+
+    void Start()
+    {
         for (var i = 0; i < maxTouches; i++)
         { 
             fingers[i].on = false;
@@ -65,16 +69,14 @@ public class Touch : MonoBehaviour
 #if (UNITY_EDITOR || UNITY_STANDALONE)
         if (Input.GetMouseButton(0))
         {
-            fingers[0].on = true;
             fingers[0].current = Input.mousePosition;
             if (_onMove != null)
                 _onMove(0, fingers[0].current);
         }
-        else
-            fingers[0].on = false;
 
         if (Input.GetMouseButtonDown(0))
         {
+            fingers[0].on = true;
             fingers[0].start = Input.mousePosition;
             if (_onStart != null)
                 _onStart(0);
@@ -83,6 +85,8 @@ public class Touch : MonoBehaviour
         {
             if (_onEnd != null)
                 _onEnd(0);
+
+            fingers[0].on = false;
         }
 #else
         var tc = Input.touchCount;
@@ -164,7 +168,7 @@ public class Touch : MonoBehaviour
         }
     }
 
-    void Get(int id, ref Finger f)
+    public bool Get(int id, ref Finger f)
     {
         for (var i = 0; i < maxTouches; i++)
         {
@@ -174,8 +178,9 @@ public class Touch : MonoBehaviour
             if (fingers[i].id == id)
             {
                 f = fingers[i];
-                break;
+                return true;
             }
         }
+        return false;
     }
 }
