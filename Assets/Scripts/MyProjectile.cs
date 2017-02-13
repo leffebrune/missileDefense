@@ -21,9 +21,11 @@ public class MyProjectile : Projectile
         explosion.SetActive(true);
         speed = Vector3.zero;
         var s = 1.0f;
-        while (s < 10.0f)
+        var radius = GameBoard.Instance.upgrade.GetExplosionRadius();
+        var espeed = GameBoard.Instance.upgrade.GetExplosionSpeed();
+        while (s < radius)
         {
-            s += Time.deltaTime * 10.0f;
+            s += Time.deltaTime * espeed;
             explosion.transform.localScale = new Vector3(s, s, 1);
             var go = ProjectileManager.Instance.FindEnemy(transform.position, s * 0.1f);
             if (go != null)

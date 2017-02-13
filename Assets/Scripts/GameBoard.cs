@@ -8,11 +8,14 @@ public class GameBoard : MonoBehaviour
     enum GameState
     {
         Ready,
-        Play
+        Play,
+        Finished,
     };
 
     Game_Playing playing = new Game_Playing();
     StateMachine<GameState> sm = new StateMachine<GameState>();
+    Game_Playing.Result result = new Game_Playing.Result();
+    public Upgrade upgrade = new Upgrade();
 
     void Awake()
     {
@@ -25,6 +28,7 @@ public class GameBoard : MonoBehaviour
             (prev, param) =>
             {
                 Game_UI.Instance.EnterReady();
+                upgrade.Reset();
             },
             null,
             (next) =>
@@ -36,18 +40,30 @@ public class GameBoard : MonoBehaviour
             (prev, param) =>
             {
                 Game_UI.Instance.EnterPlaying();
-                playing.Start(100);
+                playing.Start(100, 10);
             },
             () =>
             {
-                if (playing.HP <= 0)
+                playing.OnUpdate();
+                if (playing.CheckFinish(ref result))
                 {
-                    sm.Enter(GameState.Ready);
+                    sm.Enter(GameState.Finished);
                 }
             },
             (next) =>
             {
                 ProjectileManager.Instance.Clear();
+            });
+
+        sm.AddState(GameState.Finished,
+            (prev, param) =>
+            {
+                Game_UI.Instance.EnterFinished();
+            },
+            null,
+            (next) =>
+            {
+
             });
 
         sm.Enter(GameState.Ready);
@@ -61,5 +77,10 @@ public class GameBoard : MonoBehaviour
     public void StartPlay()
     {
         sm.Enter(GameState.Play);
+    }
+
+    public void StartReady()
+    {
+        sm.Enter(GameState.Ready);
     }
 }

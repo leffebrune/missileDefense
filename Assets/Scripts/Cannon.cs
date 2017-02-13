@@ -72,7 +72,8 @@ public class Cannon : MonoBehaviour
             var _end = Camera.main.ScreenToWorldPoint(f.current);
             _end.z = 0.0f;
 
-            p.Set(_start, _end, 4.0f);
+            var speed = GameBoard.Instance.upgrade.GetSpeed();
+            p.Set(_start, _end, speed);
         }
     }
 }

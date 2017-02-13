@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Game_Playing
 {
+    public struct Result
+    {
+        public bool isWin;
+    };
+
     public static Game_Playing Instance;
     public float HP;
     public float score;
@@ -12,7 +17,11 @@ public class Game_Playing
     float speed;
     float startTime;
 
-    public void Start(float startHP)
+    int remain;
+
+    bool finished;
+
+    public void Start(float startHP, int _remain)
     {
         Instance = this;
         HP = startHP;
@@ -21,8 +30,12 @@ public class Game_Playing
         Game_UI.Instance.UpdateScore(score);
 
         interval = 3.0f;
-        speed = 2.0f;
+        speed = 1.5f;
         startTime = Time.time;
+
+        remain = _remain;
+        finished = false;
+        Game_UI.Instance.UpdateRemain(remain);
 
         GameBoard.Instance.StartCoroutine(Spawn());
     }
@@ -32,10 +45,24 @@ public class Game_Playing
         interval -= Time.deltaTime * 0.03f;
         if (interval < 1.0f)
             interval = 1.0f;
+    }
 
-        speed += Time.deltaTime * 0.015f;
-        if (speed > 4.0f)
-            speed = 4.0f;
+    public bool CheckFinish(ref Result res)
+    {
+        if (HP < 0)
+        {
+            finished = true;
+            res.isWin = false;
+            return true;
+        }
+        if ((remain <= 0) && (ProjectileManager.Instance.EnemyCount() == 0))
+        {
+            finished = true;
+            res.isWin = true;
+            return true;
+        }
+
+        return false;
     }
 
     public void ReduceHP(float amount)
@@ -52,12 +79,18 @@ public class Game_Playing
                 
     IEnumerator Spawn()
     {
-        while (HP > 0)
+        while (!finished)
         {
             var startPos = new Vector3(Random.Range(-7.0f, 7.0f), 5, 0);
             var endPos = new Vector3(Random.Range(-7.0f, 7.0f), -4.0f, 0);
-            var aSpeed = speed + Random.Range(-0.5f, 0.5f);
+            var aSpeed = speed * Random.Range(0.8f, 1.2f);
             ProjectileManager.Instance.MakeEnemy(startPos, endPos, aSpeed);
+            remain--;
+            Game_UI.Instance.UpdateRemain(remain);
+
+            if (remain <= 0)
+                break;
+
             yield return new WaitForSeconds(interval);
         }
     }

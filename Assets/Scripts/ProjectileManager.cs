@@ -74,4 +74,9 @@ public class ProjectileManager : MonoBehaviour
         }
         return null;
     }
+
+    public int EnemyCount()
+    {
+        return listEnemy.Count;
+    }
 }
