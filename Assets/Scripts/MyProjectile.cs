@@ -28,6 +28,7 @@ public class MyProjectile : Projectile
             var go = ProjectileManager.Instance.FindEnemy(transform.position, s * 0.1f);
             if (go != null)
             {
+                Game_Playing.Instance.AddScore(10);
                 ProjectileManager.Instance.Remove(go);
             }
             yield return new WaitForEndOfFrame();

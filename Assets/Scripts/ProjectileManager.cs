@@ -50,6 +50,17 @@ public class ProjectileManager : MonoBehaviour
         Destroy(p);
     }
 
+    public void Clear()
+    {
+        foreach (var go in listMine)
+            GameObject.Destroy(go);
+        foreach (var go in listEnemy)
+            GameObject.Destroy(go);
+
+        listMine.Clear();
+        listEnemy.Clear();
+    }
+
     public GameObject FindEnemy(Vector3 pos, float radius)
     {
         pos.z = 0;

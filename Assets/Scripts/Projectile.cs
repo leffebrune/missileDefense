@@ -44,6 +44,7 @@ public class Projectile : MonoBehaviour
 
     protected virtual void OnExplode()
     {
+        Game_Playing.Instance.ReduceHP(10);
         ProjectileManager.Instance.Remove(gameObject);
     }
 }

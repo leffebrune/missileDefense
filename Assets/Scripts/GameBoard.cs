@@ -4,19 +4,62 @@ using UnityEngine;
 
 public class GameBoard : MonoBehaviour
 {
+    public static GameBoard Instance;
+    enum GameState
+    {
+        Ready,
+        Play
+    };
+
+    Game_Playing playing = new Game_Playing();
+    StateMachine<GameState> sm = new StateMachine<GameState>();
+
+    void Awake()
+    {
+        Instance = this;
+    }
+    
     void Start()
     {
-        StartCoroutine(Spawn());
+        sm.AddState(GameState.Ready,
+            (prev, param) =>
+            {
+                Game_UI.Instance.EnterReady();
+            },
+            null,
+            (next) =>
+            {
+
+            });
+
+        sm.AddState(GameState.Play,
+            (prev, param) =>
+            {
+                Game_UI.Instance.EnterPlaying();
+                playing.Start(100);
+            },
+            () =>
+            {
+                if (playing.HP <= 0)
+                {
+                    sm.Enter(GameState.Ready);
+                }
+            },
+            (next) =>
+            {
+                ProjectileManager.Instance.Clear();
+            });
+
+        sm.Enter(GameState.Ready);
     }
 
-    IEnumerator Spawn()
+    void Update()
     {
-        while (true)
-        {
-            var startPos = new Vector3(Random.Range(-7.0f, 7.0f), 5, 0);
-            var endPos = new Vector3(Random.Range(-7.0f, 7.0f), -4.0f, 0);
-            ProjectileManager.Instance.MakeEnemy(startPos, endPos, 3.0f);
-            yield return new WaitForSeconds(3.0f);
-        }
+        sm.OnUpdate();
+    }
+
+    public void StartPlay()
+    {
+        sm.Enter(GameState.Play);
     }
 }

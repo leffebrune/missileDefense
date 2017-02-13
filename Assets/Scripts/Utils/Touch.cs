@@ -134,10 +134,10 @@ public class Touch : MonoBehaviour
             }
             else if ((t.phase == TouchPhase.Ended) || (t.phase == TouchPhase.Canceled))
             {
-                Debug.Log("TOUCH_END = " + idx + " / " + t.fingerId + " / " + t.position);
-                fingers[idx].on = false;
                 if (_onEnd != null)
                     _onEnd(fingers[idx].id);
+                Debug.Log("TOUCH_END = " + idx + " / " + t.fingerId + " / " + t.position);
+                fingers[idx].on = false;
             }
         }
 #endif
