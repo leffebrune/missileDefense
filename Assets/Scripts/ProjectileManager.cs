@@ -42,6 +42,19 @@ public class ProjectileManager : MonoBehaviour
         listEnemy.Add(go);
     }
 
+    public void MakeUFO(Vector3 _startPos, float _speed, float _interval)
+    {
+        var prefab = Resources.Load<GameObject>("UFO");
+        var go = Instantiate(prefab);
+        var p = go.GetComponent<UFO>();
+
+        _startPos.z = 0.0f;
+
+        p.Set(_startPos, _speed, _interval);
+
+        listEnemy.Add(go);
+    }
+
     public void Remove(GameObject p)
     {
         listMine.Remove(p);

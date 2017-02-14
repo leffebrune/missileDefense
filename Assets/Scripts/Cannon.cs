@@ -58,22 +58,78 @@ public class Cannon : MonoBehaviour
         }
     }
 
+    void Buckshot(Vector3 pos, int count)
+    {
+        var prefab = Resources.Load<GameObject>("my_projectile");
+
+        var _start = transform.position;
+        _start.z = 0.0f;
+        var _end = pos;
+        _end.z = 0.0f;
+
+        var dir = (_end - _start).normalized;
+        var len = (_end - _start).magnitude;
+
+        float a = 10.0f;
+        float angle = ((count / 2) + 1) - count;
+        angle *= a;
+        for (var i = 0; i < count; i++)
+        {
+            Quaternion q = Quaternion.Euler(0, 0, angle);
+            var go = Instantiate(prefab);
+            var p = go.GetComponent<Projectile>();
+
+            var newdir = q * dir;
+            var newEnd = _start + newdir * len;
+
+            var speed = GameBoard.Instance.upgrade.GetSpeed();
+            p.Set(_start, newEnd, speed);
+            angle += a;
+        }
+    }
+
+    void DoShoot(Vector3 pos)
+    {
+        var prefab = Resources.Load<GameObject>("my_projectile");
+        var go = Instantiate(prefab);
+        var p = go.GetComponent<Projectile>();
+
+        var _start = transform.position;
+        _start.z = 0.0f;
+        var _end = pos;
+        _end.z = 0.0f;
+
+        var speed = GameBoard.Instance.upgrade.GetSpeed();
+        p.Set(_start, _end, speed);
+    }
+
+    IEnumerator RepeatShoot(Vector3 pos, int count)
+    {
+        for (var i = 0; i < count; i++)
+        {
+            DoShoot(pos);
+            yield return new WaitForSeconds(0.3f);
+        }
+    }
+
     void Shoot(int touchID)
     {
         Touch.Finger f = new Touch.Finger();
         if (Touch.Instance.Get(touchID, ref f))
         {
-            var prefab = Resources.Load<GameObject>("my_projectile");
-            var go = Instantiate(prefab);
-            var p = go.GetComponent<Projectile>();
+            var cType = GameBoard.Instance.upgrade.cType;
+            var pos = Camera.main.ScreenToWorldPoint(f.current);
 
-            var _start = transform.position;
-            _start.z = 0.0f;
-            var _end = Camera.main.ScreenToWorldPoint(f.current);
-            _end.z = 0.0f;
-
-            var speed = GameBoard.Instance.upgrade.GetSpeed();
-            p.Set(_start, _end, speed);
+            if (cType == Upgrade.CannonType.Normal)
+                DoShoot(pos);
+            else if (cType == Upgrade.CannonType.BuckShot)
+                Buckshot(pos, 3);
+            else if (cType == Upgrade.CannonType.BirdShot)
+                Buckshot(pos, 5);
+            else if (cType == Upgrade.CannonType.DoubleShot)
+                StartCoroutine(RepeatShoot(pos, 2));
+            else if (cType == Upgrade.CannonType.TripleShot)
+                StartCoroutine(RepeatShoot(pos, 3));
         }
     }
 }

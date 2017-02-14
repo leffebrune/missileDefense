@@ -10,7 +10,6 @@ public class Game_Playing
     };
 
     public static Game_Playing Instance;
-    public float HP;
     public float score;
 
     float interval;
@@ -18,26 +17,38 @@ public class Game_Playing
     float startTime;
 
     int remain;
+    int remainUFO;
 
     bool finished;
 
-    public void Start(float startHP, int _remain)
+    public void Start(int _remain)
     {
         Instance = this;
-        HP = startHP;
-        Game_UI.Instance.UpdateHP(HP);
+        Game_UI.Instance.UpdateHP(GameBoard.Instance.HP);
         score = 0;
         Game_UI.Instance.UpdateScore(score);
 
-        interval = 3.0f;
-        speed = 1.5f;
+
+        var d = GameBoard.Instance.day;
+        speed = 1.5f + d * 0.15f;
+        if (speed > 5.0f)
+            speed = 5.0f;
+
+        interval = 3.0f - d * 0.1f;
+        if (interval < 1.5f)
+            interval = 1.5f;
+
         startTime = Time.time;
 
-        remain = _remain;
+        remain = 9 + d;
+        remainUFO = -10 + d;
+        if (remainUFO <= 0)
+            remainUFO = 0;
         finished = false;
         Game_UI.Instance.UpdateRemain(remain);
 
         GameBoard.Instance.StartCoroutine(Spawn());
+        GameBoard.Instance.StartCoroutine(SpawnUFO());
     }
 
     public void OnUpdate()
@@ -49,7 +60,7 @@ public class Game_Playing
 
     public bool CheckFinish(ref Result res)
     {
-        if (HP < 0)
+        if (GameBoard.Instance.HP <= 0)
         {
             finished = true;
             res.isWin = false;
@@ -67,8 +78,8 @@ public class Game_Playing
 
     public void ReduceHP(float amount)
     {
-        HP -= amount;
-        Game_UI.Instance.UpdateHP(HP);
+        GameBoard.Instance.HP -= amount;
+        Game_UI.Instance.UpdateHP(GameBoard.Instance.HP);
     }
 
     public void AddScore(float amount)
@@ -76,9 +87,13 @@ public class Game_Playing
         score += amount;
         Game_UI.Instance.UpdateScore(score);
     }
-                
+
     IEnumerator Spawn()
     {
+        Game_UI.Instance.textDay.gameObject.SetActive(true);
+        Game_UI.Instance.textDay.text = "Day " + GameBoard.Instance.day.ToString();
+        yield return new WaitForSeconds(2.0f);
+        Game_UI.Instance.textDay.gameObject.SetActive(false);
         while (!finished)
         {
             var startPos = new Vector3(Random.Range(-7.0f, 7.0f), 5, 0);
@@ -91,7 +106,25 @@ public class Game_Playing
             if (remain <= 0)
                 break;
 
-            yield return new WaitForSeconds(interval);
+            yield return new WaitForSeconds(interval * Random.Range(0.8f, 1.2f));
+        }
+    }
+
+    IEnumerator SpawnUFO()
+    {
+        if (remainUFO > 0)
+        {
+            while (!finished)
+            {
+                var startPos = new Vector3(Random.Range(-5.0f, 5.0f), Random.Range(3.5f, 4.5f), 0);
+                ProjectileManager.Instance.MakeUFO(startPos, 2.0f, interval);
+                remainUFO--;
+
+                if (remainUFO <= 0)
+                    break;
+
+                yield return new WaitForSeconds(6.0f);
+            }
         }
     }
 }
