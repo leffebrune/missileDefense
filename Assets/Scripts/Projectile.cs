@@ -10,6 +10,11 @@ public class Projectile : MonoBehaviour
     protected Vector3 speed;
     protected float lifeTime;
     protected float createdTime;
+
+    public int damage = 10;
+    public float baseSpeed = 1.0f;
+    public float speedIncrease = 0.1f;
+    public float maxSpeed = 3.0f;
     
     void Start()
     {
@@ -22,9 +27,17 @@ public class Projectile : MonoBehaviour
         targetPos = _targetPos;
 
         var d = _targetPos - _startPos;
+
         speed = _speed * d.normalized;
         lifeTime = d.magnitude / _speed;
         createdTime = Time.time;
+    }
+
+    public void Set(Vector3 _startPos, Vector3 _targetPos)
+    {
+        var _speed = baseSpeed + speedIncrease * GameBoard.Instance.day;
+        if (_speed > maxSpeed)
+            _speed = maxSpeed;
     }
 
     void Update()
@@ -44,7 +57,7 @@ public class Projectile : MonoBehaviour
 
     protected virtual void OnExplode()
     {
-        Game_Playing.Instance.ReduceHP(10);
+        Game_Playing.Instance.ReduceHP(damage);
         ProjectileManager.Instance.Remove(gameObject);
     }
 }

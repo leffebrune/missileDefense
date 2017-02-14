@@ -30,9 +30,9 @@ public class Game_Playing
 
 
         var d = GameBoard.Instance.day;
-        speed = 1.5f + d * 0.15f;
-        if (speed > 5.0f)
-            speed = 5.0f;
+        speed = 1.0f + d * 0.1f;
+        if (speed > 3.0f)
+            speed = 3.0f;
 
         interval = 3.0f - d * 0.1f;
         if (interval < 1.5f)
