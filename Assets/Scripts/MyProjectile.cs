@@ -27,11 +27,11 @@ public class MyProjectile : Projectile
         {
             s += Time.deltaTime * espeed;
             explosion.transform.localScale = new Vector3(s, s, 1);
-            var go = ProjectileManager.Instance.FindEnemy(transform.position, s * 0.1f);
+            var go = EnemyManager.Instance.FindEnemy(transform.position, s * 0.1f);
             if (go != null)
             {
                 Game_Playing.Instance.AddScore(10);
-                ProjectileManager.Instance.Remove(go);
+                EnemyManager.Instance.Remove(go);
             }
             yield return new WaitForEndOfFrame();
         }

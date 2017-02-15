@@ -32,6 +32,8 @@ public class Game_UI : MonoBehaviour
     public Text textUpgrade1;
     public Text textUpgrade2;
 
+    public Text textRepair;
+
     void Awake()
     {
         Instance = this;
@@ -57,9 +59,9 @@ public class Game_UI : MonoBehaviour
         textScore.text = "Score : " + score.ToString();
     }
 
-    public void UpdateRemain(int remain)
+    public void UpdateRemain()
     {
-        textRemain.text = "Remain : " + remain.ToString();
+        textRemain.text = EnemySpawner.Instance.GetText();
     }
 
     public void EnterReady()
@@ -114,10 +116,12 @@ public class Game_UI : MonoBehaviour
         textUpgradeExplosionRadius.text = string.Format("Explosion Rad : {0} / 9", GameBoard.Instance.upgrade.explosionRadius);
         textPointRemain.text = string.Format("Points Remain : {0}", GameBoard.Instance.upgrade.pointsRemain);
 
+        textRepair.text = string.Format("HP Remain : {0} - Do Repair?", GameBoard.Instance.HP);
         var remain = (GameBoard.Instance.upgrade.pointsRemain > 0);
 
         buttonUpgradeSpeed.interactable = GameBoard.Instance.upgrade.speed <= 10 && remain;
         buttonUpgradeExplosionRadius.interactable = GameBoard.Instance.upgrade.explosionRadius <= 10 && remain;
+        textRepair.GetComponent<Button>().interactable = GameBoard.Instance.HP != 100 && remain;
 
         Upgrade.CannonType u1 = Upgrade.CannonType.Invalid;
         Upgrade.CannonType u2 = Upgrade.CannonType.Invalid;

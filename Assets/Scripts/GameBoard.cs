@@ -56,7 +56,8 @@ public class GameBoard : MonoBehaviour
             },
             (next) =>
             {
-                ProjectileManager.Instance.Clear();
+                EnemyManager.Instance.Clear();
+                EnemySpawner.Instance.Clear();
             });
 
         sm.AddState(GameState.Finished,
@@ -64,7 +65,7 @@ public class GameBoard : MonoBehaviour
             {
                 if (result.isWin)
                 {
-                    upgrade.pointsRemain += 1;
+                    upgrade.pointsRemain += 2;
                 }
                 Game_UI.Instance.EnterFinished(result.isWin);
             },
@@ -106,5 +107,12 @@ public class GameBoard : MonoBehaviour
     public void StartReady()
     {
         sm.Enter(GameState.Ready);
+    }
+
+    public void Repair()
+    {
+        upgrade.pointsRemain--;
+        HP = 100;
+        Game_UI.Instance.RefreshUpgrades();
     }
 }

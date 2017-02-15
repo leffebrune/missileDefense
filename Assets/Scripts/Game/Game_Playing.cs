@@ -27,28 +27,29 @@ public class Game_Playing
         Game_UI.Instance.UpdateHP(GameBoard.Instance.HP);
         score = 0;
         Game_UI.Instance.UpdateScore(score);
-
-
+        
         var d = GameBoard.Instance.day;
-        speed = 1.0f + d * 0.1f;
-        if (speed > 3.0f)
-            speed = 3.0f;
-
-        interval = 3.0f - d * 0.1f;
-        if (interval < 1.5f)
-            interval = 1.5f;
+        var mCount = 5 + d;
+        var hmCount = (2 + d) / 3;
+        var uCount = d / 4;
+        if (uCount < 0)
+            uCount = 0;
+        
+        interval = 4.5f - d * 0.1f;
+        if (interval < 3.0f)
+            interval = 3.0f;
 
         startTime = Time.time;
 
-        remain = 9 + d;
-        remainUFO = -10 + d;
-        if (remainUFO <= 0)
-            remainUFO = 0;
         finished = false;
-        Game_UI.Instance.UpdateRemain(remain);
 
-        GameBoard.Instance.StartCoroutine(Spawn());
-        GameBoard.Instance.StartCoroutine(SpawnUFO());
+        EnemySpawner.Instance.Set(EnemyManager.EnemyType.Missile, mCount, interval);
+        EnemySpawner.Instance.Set(EnemyManager.EnemyType.HeavyMissile, hmCount, interval * 4);
+        EnemySpawner.Instance.Set(EnemyManager.EnemyType.UFO, uCount, interval * 5);
+
+        Game_UI.Instance.UpdateRemain();
+
+        GameBoard.Instance.StartCoroutine(OpeningSeq());
     }
 
     public void OnUpdate()
@@ -66,7 +67,7 @@ public class Game_Playing
             res.isWin = false;
             return true;
         }
-        if ((remain <= 0) && (ProjectileManager.Instance.EnemyCount() == 0))
+        if ((EnemySpawner.Instance.RemainCount() <= 0) && (EnemyManager.Instance.EnemyCount() == 0))
         {
             finished = true;
             res.isWin = true;
@@ -88,43 +89,12 @@ public class Game_Playing
         Game_UI.Instance.UpdateScore(score);
     }
 
-    IEnumerator Spawn()
+    IEnumerator OpeningSeq()
     {
         Game_UI.Instance.textDay.gameObject.SetActive(true);
         Game_UI.Instance.textDay.text = "Day " + GameBoard.Instance.day.ToString();
         yield return new WaitForSeconds(2.0f);
         Game_UI.Instance.textDay.gameObject.SetActive(false);
-        while (!finished)
-        {
-            var startPos = new Vector3(Random.Range(-7.0f, 7.0f), 5, 0);
-            var endPos = new Vector3(Random.Range(-7.0f, 7.0f), -4.0f, 0);
-            var aSpeed = speed * Random.Range(0.8f, 1.2f);
-            ProjectileManager.Instance.MakeEnemy(startPos, endPos, aSpeed);
-            remain--;
-            Game_UI.Instance.UpdateRemain(remain);
-
-            if (remain <= 0)
-                break;
-
-            yield return new WaitForSeconds(interval * Random.Range(0.8f, 1.2f));
-        }
-    }
-
-    IEnumerator SpawnUFO()
-    {
-        if (remainUFO > 0)
-        {
-            while (!finished)
-            {
-                var startPos = new Vector3(Random.Range(-5.0f, 5.0f), Random.Range(3.5f, 4.5f), 0);
-                ProjectileManager.Instance.MakeUFO(startPos, 2.0f, interval);
-                remainUFO--;
-
-                if (remainUFO <= 0)
-                    break;
-
-                yield return new WaitForSeconds(6.0f);
-            }
-        }
+        EnemySpawner.Instance.StartSpawn();
     }
 }

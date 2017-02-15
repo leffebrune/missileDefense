@@ -48,7 +48,7 @@ public class UFO : MonoBehaviour
             yield return new WaitForSeconds(interval);
             var endPos = new Vector3(Random.Range(-7.0f, 7.0f), -4.0f, 0);
             var aSpeed = speed * Random.Range(0.8f, 1.2f);
-            ProjectileManager.Instance.MakeEnemy(transform.position, endPos, aSpeed);
+            EnemyManager.Instance.MakeMissile(EnemyManager.EnemyType.Missile, transform.position, endPos);
         }
     }
 }

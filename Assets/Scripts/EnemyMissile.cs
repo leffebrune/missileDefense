@@ -2,20 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Projectile : MonoBehaviour
+public class EnemyMissile : Enemy
 {
-    public bool isEnemy = true;
-    bool exploded = false;
     protected Vector3 targetPos;
-    protected Vector3 speed;
-    protected float lifeTime;
+    protected Vector3 startPos;
+
+    protected Vector3 velocity;
+
     protected float createdTime;
+    protected float lifeTime;
 
     public int damage = 10;
-    public float baseSpeed = 1.0f;
-    public float speedIncrease = 0.1f;
-    public float maxSpeed = 3.0f;
-    
+
     void Start()
     {
 
@@ -28,34 +26,33 @@ public class Projectile : MonoBehaviour
 
         var d = _targetPos - _startPos;
 
-        speed = _speed * d.normalized;
+        speed = _speed;
+
+        velocity = _speed * d.normalized;
         lifeTime = d.magnitude / _speed;
         createdTime = Time.time;
-    }
 
-    public void Set(Vector3 _startPos, Vector3 _targetPos)
-    {
-        var _speed = baseSpeed + speedIncrease * GameBoard.Instance.day;
-        if (_speed > maxSpeed)
-            _speed = maxSpeed;
+        activated = true;
     }
 
     void Update()
     {
-        if (exploded)
+        if (!activated)
             return;
         var p = transform.position;
-        p += speed * Time.deltaTime;
+        p += velocity * Time.deltaTime;
         transform.position = p;
 
         if (Time.time - createdTime > lifeTime)
         {
-            exploded = true;
-            OnExplode();
+            activated = false;
+            Explode();
         }
     }
 
-    protected virtual void OnExplode()
+    void Explode()
     {
+        Game_Playing.Instance.ReduceHP(damage);
+        EnemyManager.Instance.Remove(gameObject);
     }
 }
