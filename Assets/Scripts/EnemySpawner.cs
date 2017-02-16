@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class EnemySpawner : Singleton<EnemySpawner>
 {
-    int[] remains = new int[(int)EnemyManager.EnemyType.Invalid];
-    float[] intervals = new float[(int)EnemyManager.EnemyType.Invalid];
+    int[] remains = new int[(int)GameData.EnemyType.Invalid];
+    float[] intervals = new float[(int)GameData.EnemyType.Invalid];
 
     void Awake()
     {
@@ -22,7 +22,7 @@ public class EnemySpawner : Singleton<EnemySpawner>
         StopAllCoroutines();
     }
 
-    public void Set(EnemyManager.EnemyType t, int count, float interval)
+    public void Set(GameData.EnemyType t, int count, float interval)
     {
         var idx = (int)t;
         remains[idx] = count;
@@ -39,10 +39,10 @@ public class EnemySpawner : Singleton<EnemySpawner>
 
     IEnumerator Spawn(int idx)
     {
-        var _type = (EnemyManager.EnemyType)idx;
+        var _type = (GameData.EnemyType)idx;
         while (remains[idx] > 0)
         {
-            if (_type == EnemyManager.EnemyType.UFO)
+            if (_type == GameData.EnemyType.UFO)
                 EnemyManager.Instance.MakeUFO(_type);
             else
                 EnemyManager.Instance.MakeMissile(_type, GameUtil.GetMissileStart(), GameUtil.GetMissileTarget());
@@ -58,7 +58,7 @@ public class EnemySpawner : Singleton<EnemySpawner>
 
         for (var i = 0; i < remains.Length; i++)
         {
-            var _type = (EnemyManager.EnemyType)i;
+            var _type = (GameData.EnemyType)i;
             ret += _type.ToString() + " : " + remains[i] + Environment.NewLine;
         }
         return ret;

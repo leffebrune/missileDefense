@@ -12,6 +12,8 @@ public class EnemyMissile : Enemy
     protected float createdTime;
     protected float lifeTime;
 
+    protected float speed;
+
     public int damage = 10;
 
     void Start()
@@ -53,6 +55,6 @@ public class EnemyMissile : Enemy
     void Explode()
     {
         Game_Playing.Instance.ReduceHP(damage);
-        EnemyManager.Instance.Remove(gameObject);
+        HP = 0;
     }
 }

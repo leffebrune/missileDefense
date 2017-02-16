@@ -16,11 +16,4 @@ public class GameUtil
     {
         return new Vector3(Random.Range(-BoardWidth, BoardWidth), GroundLevel, 0);
     }
-
-    public static float GetMissileSpeed(EnemyManager.Info i)
-    {
-        var d = GameBoard.Instance.day;
-        var s = Mathf.Max(i.baseSpeed + d * i.speedIncrease, i.maxSpeed);
-        return s;
-    }
 }

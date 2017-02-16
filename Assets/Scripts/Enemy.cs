@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    protected bool activated;
-
-    protected float speed;
+    public bool activated = false;
+    public float HP = 0;
     
     void Start()
     {

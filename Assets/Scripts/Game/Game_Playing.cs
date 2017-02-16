@@ -35,17 +35,17 @@ public class Game_Playing
         if (uCount < 0)
             uCount = 0;
         
-        interval = 4.5f - d * 0.1f;
-        if (interval < 3.0f)
-            interval = 3.0f;
+        interval = 5.0f - d * 0.1f;
+        if (interval < 3.5f)
+            interval = 3.5f;
 
         startTime = Time.time;
 
         finished = false;
 
-        EnemySpawner.Instance.Set(EnemyManager.EnemyType.Missile, mCount, interval);
-        EnemySpawner.Instance.Set(EnemyManager.EnemyType.HeavyMissile, hmCount, interval * 4);
-        EnemySpawner.Instance.Set(EnemyManager.EnemyType.UFO, uCount, interval * 5);
+        EnemySpawner.Instance.Set(GameData.EnemyType.Missile, mCount, interval);
+        EnemySpawner.Instance.Set(GameData.EnemyType.HeavyMissile, hmCount, interval * 4);
+        EnemySpawner.Instance.Set(GameData.EnemyType.UFO, uCount, interval * 5);
 
         Game_UI.Instance.UpdateRemain();
 

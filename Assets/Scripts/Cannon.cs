@@ -6,14 +6,33 @@ public class Cannon : MonoBehaviour
 {
     int fingerID = -1;
     LineRenderer aimLine;
+    SpriteRenderer sr;
     Touch.Finger f = new Touch.Finger();
+
+    float cooldownTime = -1.0f;
+    Color enableCol = Color.white;
+    Color disableCol = Color.red;
 
     void Start()
     {
+        sr = GetComponent<SpriteRenderer>();
         aimLine = GetComponent<LineRenderer>();
         aimLine.numPositions = 2;
         aimLine.SetPosition(0, transform.position);
         aimLine.enabled = false;
+    }
+
+    void Update()
+    {
+        if (cooldownTime > 0)
+        {
+            sr.color = disableCol;
+            cooldownTime -= Time.deltaTime;
+        }
+        else
+        {
+            sr.color = enableCol;
+        }        
     }
 
     public void OnTouchStart(int id)
@@ -77,7 +96,7 @@ public class Cannon : MonoBehaviour
         {
             Quaternion q = Quaternion.Euler(0, 0, angle);
             var go = Instantiate(prefab);
-            var p = go.GetComponent<Projectile>();
+            var p = go.GetComponent<MyProjectile>();
 
             var newdir = q * dir;
             var newEnd = _start + newdir * len;
@@ -92,7 +111,7 @@ public class Cannon : MonoBehaviour
     {
         var prefab = Resources.Load<GameObject>("my_projectile");
         var go = Instantiate(prefab);
-        var p = go.GetComponent<Projectile>();
+        var p = go.GetComponent<MyProjectile>();
 
         var _start = transform.position;
         _start.z = 0.0f;
@@ -114,6 +133,11 @@ public class Cannon : MonoBehaviour
 
     void Shoot(int touchID)
     {
+        if (cooldownTime > 0.0f)
+            return;
+
+        cooldownTime = 1.0f;
+
         Touch.Finger f = new Touch.Finger();
         if (Touch.Instance.Get(touchID, ref f))
         {
