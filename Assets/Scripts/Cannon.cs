@@ -13,6 +13,8 @@ public class Cannon : MonoBehaviour
     Color enableCol = Color.white;
     Color disableCol = Color.red;
 
+    public int Index = 0;
+    
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
@@ -101,8 +103,10 @@ public class Cannon : MonoBehaviour
             var newdir = q * dir;
             var newEnd = _start + newdir * len;
 
-            var speed = GameBoard.Instance.upgrade.GetSpeed();
-            p.Set(_start, newEnd, speed);
+            var cType = Session.Instance.cInfo[Index];
+            var info = GameData.Instance.cannonInfo[cType._type].info[cType.level - 1];
+            
+            p.Set(_start, newEnd, info.speed, info);
             angle += a;
         }
     }
@@ -118,8 +122,10 @@ public class Cannon : MonoBehaviour
         var _end = pos;
         _end.z = 0.0f;
 
-        var speed = GameBoard.Instance.upgrade.GetSpeed();
-        p.Set(_start, _end, speed);
+        var cType = Session.Instance.cInfo[Index];
+        var info = GameData.Instance.cannonInfo[cType._type].info[cType.level - 1];
+        
+        p.Set(_start, _end, info.speed, info);
     }
 
     IEnumerator RepeatShoot(Vector3 pos, int count)
@@ -127,6 +133,15 @@ public class Cannon : MonoBehaviour
         for (var i = 0; i < count; i++)
         {
             DoShoot(pos);
+            yield return new WaitForSeconds(0.3f);
+        }
+    }
+
+    IEnumerator RepeatBuckShoot(Vector3 pos, int count, int bullet)
+    {
+        for (var i = 0; i < count; i++)
+        {
+            Buckshot(pos, bullet);
             yield return new WaitForSeconds(0.3f);
         }
     }
@@ -141,19 +156,32 @@ public class Cannon : MonoBehaviour
         Touch.Finger f = new Touch.Finger();
         if (Touch.Instance.Get(touchID, ref f))
         {
-            var cType = GameBoard.Instance.upgrade.cType;
+            var cType = Session.Instance.cInfo[Index]._type;
             var pos = Camera.main.ScreenToWorldPoint(f.current);
 
-            if (cType == Upgrade.CannonType.Normal)
-                DoShoot(pos);
-            else if (cType == Upgrade.CannonType.BuckShot)
-                Buckshot(pos, 3);
-            else if (cType == Upgrade.CannonType.BirdShot)
-                Buckshot(pos, 5);
-            else if (cType == Upgrade.CannonType.DoubleShot)
-                StartCoroutine(RepeatShoot(pos, 2));
-            else if (cType == Upgrade.CannonType.TripleShot)
-                StartCoroutine(RepeatShoot(pos, 3));
+            switch (cType)
+            {
+                case GameData.CannonType.Normal:
+                case GameData.CannonType.Fast:
+                case GameData.CannonType.Heavy:
+                case GameData.CannonType.SuperFast:
+                case GameData.CannonType.HeavyFast:
+                case GameData.CannonType.Nuke:
+                    DoShoot(pos);
+                    break;
+                case GameData.CannonType.DoubleShot:
+                    StartCoroutine(RepeatShoot(pos, 2));
+                    break;
+                case GameData.CannonType.TripleShot:
+                    StartCoroutine(RepeatShoot(pos, 3));
+                    break;
+                case GameData.CannonType.Cluster:
+                    Buckshot(pos, 5);
+                    break;
+                case GameData.CannonType.DoubleCluster:
+                    StartCoroutine(RepeatBuckShoot(pos, 2, 3));
+                    break;
+            }
         }
     }
 }

@@ -10,40 +10,39 @@ public class Game_Playing
     };
 
     public static Game_Playing Instance;
-    public float score;
 
     float interval;
-    float speed;
     float startTime;
-
-    int remain;
-    int remainUFO;
-
-    bool finished;
 
     public void Start(int _remain)
     {
         Instance = this;
-        Game_UI.Instance.UpdateHP(GameBoard.Instance.HP);
-        score = 0;
-        Game_UI.Instance.UpdateScore(score);
+        Game_UI.Instance.UpdateHP();
         
-        var d = GameBoard.Instance.day;
+        var d = Session.Instance.day;
         var mCount = 5 + d;
-        var hmCount = (2 + d) / 3;
+        var mirvCount = (d - 2) / 3;
+        var hmCount = (2 + d) / 2;
         var uCount = d / 4;
         if (uCount < 0)
             uCount = 0;
-        
+        if (mirvCount < 0)
+            mirvCount = 0;
+
+//         mCount = 0;
+//         mirvCount = 0;
+//         hmCount = 0;
+//         uCount = 1;
+
         interval = 5.0f - d * 0.1f;
         if (interval < 3.5f)
             interval = 3.5f;
 
         startTime = Time.time;
-
-        finished = false;
+        
 
         EnemySpawner.Instance.Set(GameData.EnemyType.Missile, mCount, interval);
+        EnemySpawner.Instance.Set(GameData.EnemyType.MIRV, mirvCount, interval * 4.5f);
         EnemySpawner.Instance.Set(GameData.EnemyType.HeavyMissile, hmCount, interval * 4);
         EnemySpawner.Instance.Set(GameData.EnemyType.UFO, uCount, interval * 5);
 
@@ -61,15 +60,13 @@ public class Game_Playing
 
     public bool CheckFinish(ref Result res)
     {
-        if (GameBoard.Instance.HP <= 0)
+        if (Session.Instance.HP <= 0)
         {
-            finished = true;
             res.isWin = false;
             return true;
         }
         if ((EnemySpawner.Instance.RemainCount() <= 0) && (EnemyManager.Instance.EnemyCount() == 0))
         {
-            finished = true;
             res.isWin = true;
             return true;
         }
@@ -79,20 +76,14 @@ public class Game_Playing
 
     public void ReduceHP(float amount)
     {
-        GameBoard.Instance.HP -= amount;
-        Game_UI.Instance.UpdateHP(GameBoard.Instance.HP);
+        Session.Instance.HP -= (int)amount;
+        Game_UI.Instance.UpdateHP();
     }
-
-    public void AddScore(float amount)
-    {
-        score += amount;
-        Game_UI.Instance.UpdateScore(score);
-    }
-
+    
     IEnumerator OpeningSeq()
     {
         Game_UI.Instance.textDay.gameObject.SetActive(true);
-        Game_UI.Instance.textDay.text = "Day " + GameBoard.Instance.day.ToString();
+        Game_UI.Instance.textDay.text = "Day " + Session.Instance.day.ToString();
         yield return new WaitForSeconds(2.0f);
         Game_UI.Instance.textDay.gameObject.SetActive(false);
         EnemySpawner.Instance.StartSpawn();

@@ -14,12 +14,14 @@ public class MyProjectile : MonoBehaviour
     List<GameObject> targets = new List<GameObject>();
     List<GameObject> alreadyHit = new List<GameObject>();
 
+    GameData.CannonInfo.Level ci;
+
     void Awake()
     {
         explosion = transform.FindChild("explosion").gameObject;
     }
 
-    public void Set(Vector3 _startPos, Vector3 _targetPos, float _speed)
+    public void Set(Vector3 _startPos, Vector3 _targetPos, float _speed, GameData.CannonInfo.Level _ci)
     {
         transform.position = _startPos;
         targetPos = _targetPos;
@@ -29,6 +31,7 @@ public class MyProjectile : MonoBehaviour
         speed = _speed * d.normalized;
         lifeTime = d.magnitude / _speed;
         createdTime = Time.time;
+        ci = _ci;
     }
     
     void Update()
@@ -51,8 +54,8 @@ public class MyProjectile : MonoBehaviour
         explosion.SetActive(true);
         speed = Vector3.zero;
         var s = 1.0f;
-        var radius = GameBoard.Instance.upgrade.GetExplosionRadius();
-        var espeed = GameBoard.Instance.upgrade.GetExplosionSpeed();
+        var radius = ci.explosionRadius;
+        var espeed = ci.explosionSpeed;
 
         alreadyHit.Clear();
 
@@ -68,7 +71,6 @@ public class MyProjectile : MonoBehaviour
                     continue;
 
                 alreadyHit.Add(go);
-                Game_Playing.Instance.AddScore(10);
 
                 var enemy = go.GetComponent<Enemy>();
                 if (enemy != null)

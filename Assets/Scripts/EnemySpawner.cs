@@ -58,6 +58,8 @@ public class EnemySpawner : Singleton<EnemySpawner>
 
         for (var i = 0; i < remains.Length; i++)
         {
+            if (remains[i] == 0)
+                continue;
             var _type = (GameData.EnemyType)i;
             ret += _type.ToString() + " : " + remains[i] + Environment.NewLine;
         }

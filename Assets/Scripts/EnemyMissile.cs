@@ -45,14 +45,19 @@ public class EnemyMissile : Enemy
         p += velocity * Time.deltaTime;
         transform.position = p;
 
-        if (Time.time - createdTime > lifeTime)
+        if ((Time.time - createdTime > lifeTime) || ForceExplode())
         {
             activated = false;
             Explode();
         }
     }
 
-    void Explode()
+    protected virtual bool ForceExplode()
+    {
+        return false;
+    }
+
+    protected virtual void Explode()
     {
         Game_Playing.Instance.ReduceHP(damage);
         HP = 0;

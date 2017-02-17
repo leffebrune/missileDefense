@@ -13,11 +13,10 @@ public class Game_UI : MonoBehaviour
     public GameObject finished_win;
     public GameObject finished_lose;
 
-    public Text textUpgradeSpeed;
-    public Text textUpgradeExplosionRadius;
-
-    public Button buttonUpgradeSpeed;
-    public Button buttonUpgradeExplosionRadius;
+    public Button buttonPrev;
+    public Button buttonNext;
+    public Button buttonLevelUp;
+    public Text textDayStat;
 
     public Text textDay;
 
@@ -27,12 +26,18 @@ public class Game_UI : MonoBehaviour
 
     public Text textPointRemain;
     public Text textCannonType;
+    public Text textCannonStat;
 
     public GameObject upgradeAvailable;
     public Text textUpgrade1;
     public Text textUpgrade2;
+    public Text textUpgrade3;
 
     public Text textRepair;
+
+    public RectTransform cursor;
+
+    int currentCannon = 1;
 
     void Awake()
     {
@@ -49,14 +54,9 @@ public class Game_UI : MonoBehaviour
 		
 	}
 
-    public void UpdateHP(float hp)
+    public void UpdateHP()
     {
-        textHP.text = "HP : " + hp.ToString();
-    }
-
-    public void UpdateScore(float score)
-    {
-        textScore.text = "Score : " + score.ToString();
+        textHP.text = "HP : " + Session.Instance.HP.ToString();
     }
 
     public void UpdateRemain()
@@ -88,7 +88,7 @@ public class Game_UI : MonoBehaviour
         {
             finished_win.SetActive(true);
             finished_lose.SetActive(false);
-            RefreshUpgrades();
+            RefreshInfos();
         }
         else
         {
@@ -97,52 +97,90 @@ public class Game_UI : MonoBehaviour
         }
     }
 
-    public void UpgradeSpeed()
+    public void RefreshSessionStat()
     {
-        GameBoard.Instance.upgrade.DoUpgrade(1, 0, 0);
-        RefreshUpgrades();
+        textDayStat.text = "Day " + Session.Instance.day;
+        textRepair.text = string.Format("HP Remain : {0} - Do Repair?", Session.Instance.HP);
+        var remain = (Session.Instance.points > 0);
+        textRepair.GetComponent<Button>().interactable = Session.Instance.HP != Session.Instance.MaxHP && remain;
+
+        textPointRemain.text = string.Format("Points Remain : {0}", Session.Instance.points);
     }
 
-    public void UpgradeExplosionRadius()
+    public void RefreshUpgradePanel()
     {
-        GameBoard.Instance.upgrade.DoUpgrade(0, 0, 1);
-        RefreshUpgrades();
-    }
+        var u = Session.Instance.cInfo[currentCannon - 1];
+        var uu = GameData.Instance.cannonInfo[u._type].upgrades;
 
-    public void RefreshUpgrades()
-    {
-        textCannonType.text = "Cannon Type : " + GameBoard.Instance.upgrade.cType.ToString();
-        textUpgradeSpeed.text = string.Format("Speed : {0} / 9", GameBoard.Instance.upgrade.speed);
-        textUpgradeExplosionRadius.text = string.Format("Explosion Rad : {0} / 9", GameBoard.Instance.upgrade.explosionRadius);
-        textPointRemain.text = string.Format("Points Remain : {0}", GameBoard.Instance.upgrade.pointsRemain);
+        var arr = new Text[]{ textUpgrade1, textUpgrade2, textUpgrade3 };
 
-        textRepair.text = string.Format("HP Remain : {0} - Do Repair?", GameBoard.Instance.HP);
-        var remain = (GameBoard.Instance.upgrade.pointsRemain > 0);
-
-        buttonUpgradeSpeed.interactable = GameBoard.Instance.upgrade.speed <= 10 && remain;
-        buttonUpgradeExplosionRadius.interactable = GameBoard.Instance.upgrade.explosionRadius <= 10 && remain;
-        textRepair.GetComponent<Button>().interactable = GameBoard.Instance.HP != 100 && remain;
-
-        Upgrade.CannonType u1 = Upgrade.CannonType.Invalid;
-        Upgrade.CannonType u2 = Upgrade.CannonType.Invalid;
-
-        if (GameBoard.Instance.upgrade.UpgradeAvailable(ref u1, ref u2))
+        for (var i = 0; i < 3; i++)
         {
-            upgradeAvailable.SetActive(true);
-            textUpgrade1.text = "Upgrade to : " + u1.ToString();
-            if (u2 != Upgrade.CannonType.Invalid)
+            arr[i].gameObject.SetActive(i < uu.Count);
+            if (i < uu.Count)
             {
-                textUpgrade2.gameObject.SetActive(true);
-                textUpgrade2.text = "Upgrade to : " + u2.ToString();
-            }
-            else
-            {
-                textUpgrade2.gameObject.SetActive(false);
+                arr[i].text = "Upgrade to : " + uu[i].next.ToString();
+                arr[i].GetComponent<Button>().interactable = Session.Instance.CanUpgrade(currentCannon - 1, i);
             }
         }
+    }
+
+
+    public void RefreshCannonStats()
+    {
+        var s = Session.Instance.cInfo[currentCannon - 1];
+
+        textCannonType.text = "Cannon #" + currentCannon.ToString() + " : " + s._type.ToString() + " " + s.level + " lv";
+
+        var _info = GameData.Instance.cannonInfo[s._type].info[s.level - 1];
+        var stat = "Damage : " + _info.damage.ToString() + System.Environment.NewLine +
+        "Speed : " + _info.speed.ToString() + System.Environment.NewLine +
+        "Explosion : " + _info.explosionRadius.ToString() + System.Environment.NewLine;
+
+        textCannonStat.text = stat;
+
+        var interactable = Session.Instance.CanLevelUp(currentCannon - 1);
+        buttonLevelUp.interactable = interactable;
+        if (interactable)
+            buttonLevelUp.GetComponent<Text>().text = "<Level UP! (cost : " + GameData.Instance.cannonInfo[s._type].info[s.level].cost.ToString() + ")>";
         else
-        {
-            upgradeAvailable.SetActive(false);
-        }
+            buttonLevelUp.GetComponent<Text>().text = "< MAX LEVEL! >";
+
+        float[] xPos = { 640, 1000, 270 };
+        cursor.anchoredPosition = new Vector2(xPos[currentCannon - 1], 150);
+    }
+
+
+    public void RefreshInfos()
+    {
+        RefreshCannonStats();
+        RefreshUpgradePanel();
+        RefreshSessionStat();
+    }
+
+    public void CannonPrev()
+    {
+        currentCannon--;
+        if (currentCannon == 0)
+            currentCannon = 3;
+        RefreshInfos();
+    }
+
+    public void CannonNext()
+    {
+        if (currentCannon == 3)
+            currentCannon = 0;
+        currentCannon++;
+        RefreshInfos();
+    }
+
+    public void LevelUp()
+    {
+        GameBoard.Instance.DoLevelUp(currentCannon - 1);
+    }
+
+    public void DoUpgrade(int uidx)
+    {
+        GameBoard.Instance.DoUpgrade(currentCannon - 1, uidx);
     }
 }
