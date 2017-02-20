@@ -22,19 +22,30 @@ public class Game_Playing
         var d = Session.Instance.day;
         var mCount = 5 + d;
         var mirvCount = (d - 2) / 3;
-        var hmCount = (2 + d) / 2;
+        var hmCount = (2 + d) / 3;
         var uCount = d / 4;
         if (uCount < 0)
             uCount = 0;
         if (mirvCount < 0)
             mirvCount = 0;
 
-//         mCount = 0;
+        var bossCount = 0;
+        if (d == 15)
+        {
+            mCount = 0;
+            mirvCount = 0;
+            hmCount = 0;
+            uCount = 0;
+            bossCount = 1;
+        }
+
+//         mCount = 1;
 //         mirvCount = 0;
 //         hmCount = 0;
-//         uCount = 1;
+//         uCount = 0;
+//         bossCount = 0;
 
-        interval = 5.0f - d * 0.1f;
+        interval = 6.0f - d * 0.1f;
         if (interval < 3.5f)
             interval = 3.5f;
 
@@ -43,8 +54,9 @@ public class Game_Playing
 
         EnemySpawner.Instance.Set(GameData.EnemyType.Missile, mCount, interval);
         EnemySpawner.Instance.Set(GameData.EnemyType.MIRV, mirvCount, interval * 4.5f);
-        EnemySpawner.Instance.Set(GameData.EnemyType.HeavyMissile, hmCount, interval * 4);
+        EnemySpawner.Instance.Set(GameData.EnemyType.HeavyMissile, hmCount, interval * 2.5f);
         EnemySpawner.Instance.Set(GameData.EnemyType.UFO, uCount, interval * 5);
+        EnemySpawner.Instance.Set(GameData.EnemyType.Boss, bossCount, interval);
 
         Game_UI.Instance.UpdateRemain();
 

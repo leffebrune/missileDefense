@@ -74,7 +74,7 @@ public class MyProjectile : MonoBehaviour
 
                 var enemy = go.GetComponent<Enemy>();
                 if (enemy != null)
-                    enemy.HP -= 5;
+                    enemy.HP -= ci.damage;
             }
             yield return new WaitForEndOfFrame();
         }

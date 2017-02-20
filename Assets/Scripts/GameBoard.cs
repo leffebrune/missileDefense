@@ -60,7 +60,7 @@ public class GameBoard : MonoBehaviour
             {
                 if (result.isWin)
                 {
-                    Session.Instance.points += 4;
+                    Session.Instance.points += 5;
                 }
                 Game_UI.Instance.EnterFinished(result.isWin);
             },

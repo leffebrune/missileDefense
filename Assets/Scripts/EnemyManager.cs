@@ -52,7 +52,22 @@ public class EnemyManager : Singleton<EnemyManager>
 
         listEnemy.Add(go.GetComponent<Enemy>());
     }
-    
+
+    public void MakeBoss(GameData.EnemyType _type)
+    {
+        var _info = GameData.Instance.GetEnemyInfo(_type);
+
+        var startPos = new Vector3(0.0f, 4.0f, 0);
+        var prefab = Resources.Load<GameObject>(_info.prefab);
+        var go = Instantiate(prefab);
+        var p = go.GetComponent<Boss>();
+
+        p.Set(startPos);
+        p.HP = _info.HP;
+
+        listEnemy.Add(go.GetComponent<Enemy>());
+    }
+
     public void Clear()
     {
         foreach (var go in listEnemy)

@@ -12,6 +12,7 @@ public class Game_UI : MonoBehaviour
 
     public GameObject finished_win;
     public GameObject finished_lose;
+    public GameObject finished_clear;
 
     public Button buttonPrev;
     public Button buttonNext;
@@ -86,13 +87,24 @@ public class Game_UI : MonoBehaviour
 
         if (isWin)
         {
-            finished_win.SetActive(true);
-            finished_lose.SetActive(false);
-            RefreshInfos();
+            if (Session.Instance.day >= 15)
+            {
+                finished_win.SetActive(false);
+                finished_lose.SetActive(false);
+                finished_clear.SetActive(true);
+            }
+            else
+            {
+                finished_win.SetActive(true);
+                finished_lose.SetActive(false);
+                finished_clear.SetActive(false);
+                RefreshInfos();
+            }            
         }
         else
         {
             finished_win.SetActive(false);
+            finished_clear.SetActive(false);
             finished_lose.SetActive(true);
         }
     }

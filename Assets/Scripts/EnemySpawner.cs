@@ -42,7 +42,9 @@ public class EnemySpawner : Singleton<EnemySpawner>
         var _type = (GameData.EnemyType)idx;
         while (remains[idx] > 0)
         {
-            if (_type == GameData.EnemyType.UFO)
+            if (_type == GameData.EnemyType.Boss)
+                EnemyManager.Instance.MakeBoss(_type);
+            else if (_type == GameData.EnemyType.UFO)
                 EnemyManager.Instance.MakeUFO(_type);
             else
                 EnemyManager.Instance.MakeMissile(_type, GameUtil.GetMissileStart(), GameUtil.GetMissileTarget());

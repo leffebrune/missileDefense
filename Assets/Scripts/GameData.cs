@@ -11,6 +11,8 @@ public class GameData : Singleton<GameData>
         MIRV,
         MIRV_RV,
         UFO,
+        Boss,
+        BossMissile,
 
         Invalid
     }
@@ -112,10 +114,10 @@ public class GameData : Singleton<GameData>
         ci.maxLevel = 5;
         ci.info = new CannonInfo.Level[5];
         MakeLevel(ref ci.info[0], 0, 2, 4.5f, 7.0f, 12.0f);
-        MakeLevel(ref ci.info[1], 1, 2, 4.7f, 7.0f, 12.0f);
-        MakeLevel(ref ci.info[2], 2, 2, 4.9f, 7.0f, 12.0f);
-        MakeLevel(ref ci.info[3], 3, 2, 5.1f, 9.0f, 14.0f);
-        MakeLevel(ref ci.info[4], 4, 2, 5.3f, 9.0f, 14.0f);
+        MakeLevel(ref ci.info[1], 2, 2, 4.7f, 7.0f, 12.0f);
+        MakeLevel(ref ci.info[2], 3, 2, 4.9f, 7.0f, 12.0f);
+        MakeLevel(ref ci.info[3], 4, 2, 5.1f, 9.0f, 14.0f);
+        MakeLevel(ref ci.info[4], 5, 2, 5.3f, 9.0f, 14.0f);
 
         MakeUpgrade(ref ci, 5, CannonType.SuperFast);
         MakeUpgrade(ref ci, 5, CannonType.Cluster);
@@ -126,10 +128,10 @@ public class GameData : Singleton<GameData>
         ci.maxLevel = 5;
         ci.info = new CannonInfo.Level[5];
         MakeLevel(ref ci.info[0], 0, 10, 1.5f, 15.0f, 18.0f);
-        MakeLevel(ref ci.info[1], 1, 12, 1.5f, 16.0f, 18.0f);
-        MakeLevel(ref ci.info[2], 2, 14, 1.5f, 17.0f, 18.0f);
-        MakeLevel(ref ci.info[3], 3, 16, 1.5f, 18.0f, 18.0f);
-        MakeLevel(ref ci.info[4], 4, 18, 1.5f, 19.0f, 18.0f);
+        MakeLevel(ref ci.info[1], 2, 12, 1.5f, 16.0f, 18.0f);
+        MakeLevel(ref ci.info[2], 3, 14, 1.5f, 17.0f, 18.0f);
+        MakeLevel(ref ci.info[3], 4, 16, 1.5f, 18.0f, 18.0f);
+        MakeLevel(ref ci.info[4], 5, 18, 1.5f, 19.0f, 18.0f);
 
         MakeUpgrade(ref ci, 5, CannonType.HeavyFast);
         MakeUpgrade(ref ci, 5, CannonType.Nuke);
@@ -140,10 +142,10 @@ public class GameData : Singleton<GameData>
         ci.maxLevel = 5;
         ci.info = new CannonInfo.Level[5];
         MakeLevel(ref ci.info[0], 0, 4, 2.5f, 10.0f, 10.0f);
-        MakeLevel(ref ci.info[1], 1, 4, 2.7f, 10.0f, 10.0f);
-        MakeLevel(ref ci.info[2], 2, 4, 2.9f, 10.0f, 10.0f);
-        MakeLevel(ref ci.info[3], 3, 5, 2.9f, 10.0f, 10.0f);
-        MakeLevel(ref ci.info[4], 4, 6, 2.9f, 10.0f, 10.0f);
+        MakeLevel(ref ci.info[1], 2, 4, 2.7f, 10.0f, 10.0f);
+        MakeLevel(ref ci.info[2], 3, 4, 2.9f, 10.0f, 10.0f);
+        MakeLevel(ref ci.info[3], 4, 5, 2.9f, 10.0f, 10.0f);
+        MakeLevel(ref ci.info[4], 5, 6, 2.9f, 10.0f, 10.0f);
 
         MakeUpgrade(ref ci, 5, CannonType.TripleShot);
         MakeUpgrade(ref ci, 5, CannonType.DoubleCluster);
@@ -160,7 +162,7 @@ public class GameData : Singleton<GameData>
         ci = new CannonInfo();
         ci.maxLevel = 1;
         ci.info = new CannonInfo.Level[1];
-        MakeLevel(ref ci.info[0], 0, 1, 4.0f, 10.0f, 10.0f);
+        MakeLevel(ref ci.info[0], 0, 2, 4.0f, 10.0f, 10.0f);
 
         cannonInfo[CannonType.Cluster] = ci;
 
@@ -188,7 +190,7 @@ public class GameData : Singleton<GameData>
         ci = new CannonInfo();
         ci.maxLevel = 1;
         ci.info = new CannonInfo.Level[1];
-        MakeLevel(ref ci.info[0], 0, 2, 4.0f, 10.0f, 10.0f);
+        MakeLevel(ref ci.info[0], 0, 3, 4.0f, 10.0f, 10.0f);
 
         cannonInfo[CannonType.DoubleCluster] = ci;
     }
@@ -196,11 +198,13 @@ public class GameData : Singleton<GameData>
 
     void Awake()
     {
-        AddEnemy(EnemyType.Missile, "projectile", 0.6f, 1.4f, 3);
+        AddEnemy(EnemyType.Missile, "projectile", 0.5f, 1.2f, 3);
         AddEnemy(EnemyType.HeavyMissile, "heavy_missile", 0.2f, 0.4f, 10);
-        AddEnemy(EnemyType.MIRV, "MIRV", 0.5f, 0.5f, 10);
-        AddEnemy(EnemyType.MIRV_RV, "projectile", 1.0f, 1.5f, 1);
-        AddEnemy(EnemyType.UFO, "UFO", 0.5f, 0.8f, 8);
+        AddEnemy(EnemyType.MIRV, "MIRV", 0.5f, 0.6f, 10);
+        AddEnemy(EnemyType.MIRV_RV, "projectile", 0.6f, 1.1f, 1);
+        AddEnemy(EnemyType.UFO, "UFO", 0.4f, 0.6f, 8);
+        AddEnemy(EnemyType.Boss, "Boss", 0.0f, 0.0f, 100);
+        AddEnemy(EnemyType.BossMissile, "projectile", 0.8f, 0.8f, 3);
         MakeCannonInfo();
     }
 
